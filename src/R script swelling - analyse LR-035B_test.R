@@ -6,23 +6,16 @@
 ##
 ###############################################################################
 
-lint("src/R script swelling - analyse LR-035B.R")
+# load or install packages
+install.packages("dplyr")
+install.packages("readxl")
+install.packages("gglpot2")
+install.packages("docstring")
 
-## First specify the packages of interest
-packages <- c("dplyr", "readxl", "ggplot2", "ggpubr", "ggpattern", "lintr")
-
-## Now load or install&load all
-package.check <- lapply(
-  packages,
-  FUN = function(x) {
-    if (!require(x, character.only = TRUE)) {
-      install.packages(x, dependencies = TRUE)
-      library(x, character.only = TRUE)
-    }
-  }
-)
-
-asdfds
+library(dplyr)
+library(readxl)
+library(ggplot2)
+library(docstring)
 
 ###############################################################################
 ##                  Open files                                      ##
@@ -40,15 +33,37 @@ stats_AUC <- read_excel(
   #range="CY5:DH101"          #Location of table in Excel sheet can be changed here
 )
 
+###############
+##         DEFINE FUNCTION
+##############
+
+Plot_swelling_graph <- function(data){
+  #' @tile Plot swelling graphs
+  #' @description This function plots swelling of organoids over time at different conditions
+  #' @param t The dataset you want to use
+  
+  x <- ggplot(data, aes(x = t, y = foldchange_mean2, color = Activator)) +
+    geom_point(size = 1.5) +
+    geom_line(size = 1) +
+    geom_errorbar(aes(ymin = foldchange_mean2 - foldchange_sd2, ymax = foldchange_mean2 + foldchange_sd2), 
+                  width = 0.1) +
+    scale_y_continuous(limits = c(90, 150)) +
+    labs(
+      x = "Time",
+      y = "Swelling (%)"
+    ) +
+    theme_classic() +
+    facet_grid(cols = vars(medium)) 
+  return(x)
+}
+
+docstring(Plot_swelling_graph)
+
+?Plot_swelling_graph
+
 ###############################################################################
 ##                  MAKE GRAPHS: swell% in time                              ##
 ###############################################################################
-
-rename_colname <- function (input, colname, new_colname){
-  colnames(input)[colnames(input) == colname] <- new_colname
-}
-
-rename_colname(stats_foldchange, "medium (uL)", "medium")
 
 colnames(stats_foldchange)[colnames(stats_foldchange) == "medium (uL)"] <- "medium" #remove () from colname because R does not like this
 stats_foldchange$"medium" <- as.character(stats_foldchange$"medium") #change to character
@@ -65,25 +80,8 @@ stats_foldchange2 <- stats_foldchange %>% #Make table per condition
 #TODO: variable name does not five useful information, the number 2
 
 #Plot swelling graph per donor (swell% in time)
-  ggplot(stats_foldchange2, aes(x = t, y = foldchange_mean2, color = Activator)) +
-    geom_point(size = 1.5) +
-    geom_line(size = 1) +
-    geom_errorbar(aes(ymin = foldchange_mean2 - foldchange_sd2, ymax = foldchange_mean2 + foldchange_sd2), 
-      width = 0.1) +
-    #scale_x_continuous(breaks = seq(min(Time_minutes), max(Time_minutes), by = 15)) +
-    scale_y_continuous(limits = c(90, 150)) +
-    labs(
-      x = "Time",
-      y = "Swelling (%)"
-     # title = Results_foldchange_Selection$Donor
-    ) +
-    theme_classic() +
-    #scale_color_manual(values = FDA2_color) +
-    facet_grid(cols = vars(medium)) 
+  Plot_swelling_graph(stats_foldchange2)
     
-#ggsave(paste(Results_AUC$Experiment,"Swell HNEC0291,292,293 FDA2.pdf") , plot = last_plot(), device=pdf, widt = 10, height = 6, useDingbats = F)
-
-
 ###############################################################################
 ##                  MAKE GRAPHS: AUC bar graphs                              ##
 ###############################################################################  
@@ -104,17 +102,12 @@ stats_AUC2 <- stats_AUC %>% #Make table per condition
 # Make graphs (AUC)
 ggplot(data = stats_AUC2, aes(x = Activator, y = auc_mean2, fill = medium))+
   geom_bar(stat = "identity", color = "black", position = "dodge") +
-  #geom_point(data = Results_combined, aes(x = Activator, y = AUC), position = position_dodge(width = 0.9)) +
   geom_errorbar(aes(ymin = auc_mean2 - auc_sd2, ymax = auc_mean2 + auc_sd2), 
                 width = .2, 
                 color = "black", 
                 position = position_dodge(width = 0.9)) +
-  #ggtitle (Results_AUC_Donor$Donor) +
   labs(y = "AUC (t = 60 min)", x = NULL) +
   theme_classic() +
-  #scale_fill_manual(values = c("black", "lightgrey", "white"), labels = medium) +
-  #facet_grid(rows = vars(Condition)) +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 
-#ggsave(paste(Results_AUC_selection$Experiment,"AUC_HNEC0365 n1,n2.pdf"), device=pdf, widt = 10, height = 6, useDingbats = F)
 
