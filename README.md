@@ -14,6 +14,14 @@ Thid code can be used to make the graphs.
 Sam
 Course wiring reproducible code
 
+## Requirements
+Language: R 4.0.3
+Operating system: Windows 10 x64
+Packages: 
+  ggplot2_3.3.3   
+  readxl_1.3.1    
+  dplyr_1.0.4 
+
 ## Project organization
 - PG = project-generated
 - HW = human-writable
