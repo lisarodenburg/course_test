@@ -1,4 +1,18 @@
-# [PROJECT NAME]
+# Analyzing experiment LR-035B
+
+## Installation
+Rstudio is required
+
+## Authors
+Lisa Rodenburg
+
+## Running the code
+Input data should be Excel data from organoid swelling assays where foldchange and AUC values are already calculated.
+Thid code can be used to make the graphs.
+
+## Acknowledgments
+Sam
+Course wiring reproducible code
 
 ## Project organization
 - PG = project-generated
