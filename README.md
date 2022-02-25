@@ -16,7 +16,9 @@ Course wiring reproducible code
 
 ## Requirements
 Language: R 4.0.3
+
 Operating system: Windows 10 x64
+
 Packages: 
   ggplot2_3.3.3   
   readxl_1.3.1    
